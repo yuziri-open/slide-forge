@@ -6,8 +6,8 @@ import { promisify } from 'util';
 
 const execAsync = promisify(exec);
 
-const CLAUDE_BIN = 'C:\\Users\\coli8\\.local\\bin\\claude.exe';
-const BASH_PATH = 'D:\\Git\\usr\\bin\\bash.exe';
+const CLAUDE_BIN = process.env.CLAUDE_BIN_PATH || 'claude';
+const BASH_PATH = process.env.GIT_BASH_PATH || '';
 
 export async function POST(req: Request) {
   try {
@@ -59,11 +59,11 @@ Rules:
         {
           env: {
             ...process.env,
-            CLAUDE_CODE_GIT_BASH_PATH: BASH_PATH,
+            ...(BASH_PATH ? { CLAUDE_CODE_GIT_BASH_PATH: BASH_PATH } : {}),
           },
           maxBuffer: 1024 * 1024 * 20,
-          timeout: 120000, // 2 min per slide
-          shell: 'D:\\Git\\bin\\bash.exe',
+          timeout: 120000,
+          ...(BASH_PATH ? { shell: BASH_PATH } : {}),
         }
       );
 

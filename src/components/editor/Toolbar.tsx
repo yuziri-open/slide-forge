@@ -2,6 +2,7 @@
 
 import type { CSSProperties, ReactNode } from 'react';
 import { useRef, useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useEditorStore } from '@/store/editor-store';
 import {
   AlignCenter,
@@ -255,6 +256,7 @@ export default function Toolbar() {
   const [pptxProgress, setPptxProgress] = useState<{ label: string; current: number; total: number } | null>(null);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saved' | 'error'>('idle');
   const imageInputRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
 
   // GAS API URL が設定されているか確認（クライアントサイドで判定）
   const gasApiUrl = process.env.NEXT_PUBLIC_GAS_SLIDE_API || '';
@@ -356,14 +358,18 @@ export default function Toolbar() {
     <>
       <header className="relative z-50 h-14 flex items-center px-3 gap-3 flex-shrink-0" style={{ background: 'transparent' }}>
         <div className="flex items-center gap-2 px-3 py-2 flex-1 sf-toolbar overflow-x-auto">
-          <div className="flex items-center gap-2 mr-2 flex-shrink-0">
+          <button
+            onClick={() => router.push('/')}
+            className="flex items-center gap-2 mr-2 flex-shrink-0 hover:opacity-70 transition-opacity"
+            title="ホームに戻る"
+          >
             <div className="w-6 h-6 rounded-lg flex items-center justify-center" style={{ background: '#007AFF', boxShadow: '0 4px 12px rgba(0,122,255,0.24)' }}>
               <Zap className="w-3.5 h-3.5 text-white" />
             </div>
             <span className="text-sm font-bold text-[#1d1d1f] tracking-tight" style={{ fontFamily: '-apple-system, "SF Pro Display", sans-serif' }}>
               SlideForge
             </span>
-          </div>
+          </button>
 
           <div className="min-w-0 mr-2 flex-shrink" style={{ maxWidth: 180 }}>
             <span className="text-xs text-[#86868b] truncate block">{fileName || 'untitled.html'}</span>
@@ -522,18 +528,14 @@ export default function Toolbar() {
               </button>
               <button
                 onClick={() => {
-                  const blank =
-                    '<!DOCTYPE html><html><head><meta charset="utf-8"><title>New Slide</title></head><body>' +
-                    '<div class="slide" style="position:relative;width:1280px;height:720px;background:white;overflow:hidden;"></div>' +
-                    '</body></html>';
-                  loadHTML(blank, 'new-slide.html');
                   setShowNewSlideDialog(false);
+                  router.push('/');
                 }}
                 className="w-full py-2.5 rounded-xl text-sm font-medium text-left px-4"
                 style={{ background: 'rgba(255,59,48,0.06)', border: '1px solid rgba(255,59,48,0.14)', color: '#1d1d1f' }}
               >
                 Start blank
-                <div className="text-xs font-normal mt-0.5 text-[#86868b]">Replace the current content and open an empty presentation.</div>
+                <div className="text-xs font-normal mt-0.5 text-[#86868b]">ホーム画面に戻り、新しいプレゼンテーションを開始します。</div>
               </button>
               <button onClick={() => setShowNewSlideDialog(false)} className="w-full py-2 rounded-xl text-sm transition-all" style={softBtnStyle}>
                 Cancel

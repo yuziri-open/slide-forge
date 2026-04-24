@@ -61,7 +61,7 @@ export default function EditorPage() {
       const tag = target?.tagName?.toLowerCase();
       const isTyping = tag === 'input' || tag === 'textarea' || target?.isContentEditable;
 
-      if (isCtrl && e.shiftKey && e.key === 'Z') {
+      if (isCtrl && (e.shiftKey && e.key === 'Z' || e.key === 'y')) {
         e.preventDefault();
         redo();
         return;
@@ -153,7 +153,7 @@ export default function EditorPage() {
           </span>
         )}
         <span className="text-xs text-[#86868b] ml-auto">
-          Ctrl+C/X/V: コピー/カット/ペースト | Delete: 削除 | Ctrl+D: 複製 | Ctrl+G: グループ化 | 右クリック: メニュー
+          Ctrl+Z/Y: 戻る/やり直し | Ctrl+C/X/V: コピー/カット/ペースト | Delete: 削除 | Ctrl+D: 複製 | Ctrl+G: グループ化
         </span>
       </footer>
     </div>

@@ -122,27 +122,29 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   },
 
   undo: () => {
-    const { history, historyIndex, slides } = get();
+    const { history, historyIndex } = get();
     if (historyIndex <= 0) return;
     const newIndex = historyIndex - 1;
     const slideHtmls = history[newIndex];
-    const newSlides = slides.map((s, i) => ({
-      ...s,
-      html: slideHtmls[i] ?? s.html,
+    const newSlides = slideHtmls.map((html, i) => ({
+      id: `slide-${i}`,
+      html,
     }));
-    set({ historyIndex: newIndex, slides: newSlides, selectedElement: null, multiSelect: [] });
+    const newCurrentIndex = Math.min(get().currentSlideIndex, newSlides.length - 1);
+    set({ historyIndex: newIndex, slides: newSlides, currentSlideIndex: newCurrentIndex, selectedElement: null, multiSelect: [] });
   },
 
   redo: () => {
-    const { history, historyIndex, slides } = get();
+    const { history, historyIndex } = get();
     if (historyIndex >= history.length - 1) return;
     const newIndex = historyIndex + 1;
     const slideHtmls = history[newIndex];
-    const newSlides = slides.map((s, i) => ({
-      ...s,
-      html: slideHtmls[i] ?? s.html,
+    const newSlides = slideHtmls.map((html, i) => ({
+      id: `slide-${i}`,
+      html,
     }));
-    set({ historyIndex: newIndex, slides: newSlides, selectedElement: null, multiSelect: [] });
+    const newCurrentIndex = Math.min(get().currentSlideIndex, newSlides.length - 1);
+    set({ historyIndex: newIndex, slides: newSlides, currentSlideIndex: newCurrentIndex, selectedElement: null, multiSelect: [] });
   },
 
   exportHTML: () => {

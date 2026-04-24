@@ -19,15 +19,28 @@ export default function Canvas() {
   // Build srcDoc only when slide index changes (not on every HTML update)
   const [srcDoc, setSrcDoc] = useState('');
   const prevSlideIndexRef = useRef<number>(-1);
+  const historyIndex = useEditorStore((s) => s.historyIndex);
+  const prevHistoryIndexRef = useRef<number>(-1);
 
   useEffect(() => {
     if (!currentSlide) return;
     if (prevSlideIndexRef.current !== currentSlideIndex) {
       prevSlideIndexRef.current = currentSlideIndex;
+      prevHistoryIndexRef.current = historyIndex;
       setSrcDoc(buildSrcDoc(headHtml, currentSlide.html, IFRAME_INJECT_SCRIPT));
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentSlideIndex, headHtml]);
+
+  // Reload srcDoc on undo/redo (historyIndex changes without slideIndex changing)
+  useEffect(() => {
+    if (!currentSlide) return;
+    if (prevHistoryIndexRef.current !== -1 && prevHistoryIndexRef.current !== historyIndex) {
+      setSrcDoc(buildSrcDoc(headHtml, currentSlide.html, IFRAME_INJECT_SCRIPT));
+    }
+    prevHistoryIndexRef.current = historyIndex;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [historyIndex]);
 
   // Also load on initial render
   useEffect(() => {

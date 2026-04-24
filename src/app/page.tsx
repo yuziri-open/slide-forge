@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Cloud, FileText, Loader2, Trash2, Upload, Zap } from 'lucide-react';
+import { Cloud, FileText, Loader2, Plus, Trash2, Upload, Zap } from 'lucide-react';
 import { useEditorStore } from '@/store/editor-store';
 import { listProjects, deleteProject, type ProjectSummary } from '@/lib/gas-api';
 
@@ -116,55 +116,76 @@ export default function HomePage() {
         <p className="text-[#86868b] text-lg">HTMLプレゼンをビジュアル編集</p>
       </div>
 
-      <div
-        className={`
-          relative w-full max-w-2xl border-2 border-dashed rounded-[28px] p-16
-          flex flex-col items-center justify-center cursor-pointer transition-all duration-200
-          ${isDragging
-            ? 'border-[#007AFF] bg-[rgba(0,122,255,0.06)]'
-            : 'border-[#c7c7cc] bg-white hover:border-[#007AFF] hover:bg-[rgba(255,255,255,0.96)]'
-          }
-        `}
-        style={{ boxShadow: '0 18px 50px rgba(15,23,42,0.08)' }}
-        onDragOver={(e) => {
-          e.preventDefault();
-          setIsDragging(true);
-        }}
-        onDragLeave={() => setIsDragging(false)}
-        onDrop={handleDrop}
-        onClick={() => document.getElementById('file-input')?.click()}
-      >
-        <input
-          id="file-input"
-          type="file"
-          accept=".html,.htm"
-          className="hidden"
-          onChange={handleFileInput}
-        />
-
+      <div className="w-full max-w-2xl flex gap-4">
         <div
-          className={`w-20 h-20 rounded-[24px] flex items-center justify-center mb-6 transition-colors ${
-            isDragging ? 'bg-[rgba(0,122,255,0.08)]' : 'bg-[rgba(0,0,0,0.04)]'
-          }`}
+          className={`
+            relative flex-1 border-2 border-dashed rounded-[28px] p-12
+            flex flex-col items-center justify-center cursor-pointer transition-all duration-200
+            ${isDragging
+              ? 'border-[#007AFF] bg-[rgba(0,122,255,0.06)]'
+              : 'border-[#c7c7cc] bg-white hover:border-[#007AFF] hover:bg-[rgba(255,255,255,0.96)]'
+            }
+          `}
+          style={{ boxShadow: '0 18px 50px rgba(15,23,42,0.08)' }}
+          onDragOver={(e) => {
+            e.preventDefault();
+            setIsDragging(true);
+          }}
+          onDragLeave={() => setIsDragging(false)}
+          onDrop={handleDrop}
+          onClick={() => document.getElementById('file-input')?.click()}
         >
-          <Upload className={`w-10 h-10 transition-colors ${isDragging ? 'text-[#007AFF]' : 'text-[#86868b]'}`} />
+          <input
+            id="file-input"
+            type="file"
+            accept=".html,.htm"
+            className="hidden"
+            onChange={handleFileInput}
+          />
+
+          <div
+            className={`w-16 h-16 rounded-[20px] flex items-center justify-center mb-4 transition-colors ${
+              isDragging ? 'bg-[rgba(0,122,255,0.08)]' : 'bg-[rgba(0,0,0,0.04)]'
+            }`}
+          >
+            <Upload className={`w-8 h-8 transition-colors ${isDragging ? 'text-[#007AFF]' : 'text-[#86868b]'}`} />
+          </div>
+
+          <h2 className="text-lg font-semibold text-[#1d1d1f] mb-1">
+            HTMLファイルをドロップ
+          </h2>
+          <p className="text-[#86868b] text-sm mb-4">
+            またはクリックしてファイルを選択
+          </p>
+
+          <div className="flex items-center gap-2 text-xs text-[#86868b]">
+            <FileText className="w-4 h-4" />
+            <span>.html / .htm ファイル対応</span>
+          </div>
+
+          {error && (
+            <p className="mt-4 text-[#ff3b30] text-sm">{error}</p>
+          )}
         </div>
 
-        <h2 className="text-xl font-semibold text-[#1d1d1f] mb-2">
-          HTMLファイルをドロップ
-        </h2>
-        <p className="text-[#86868b] text-sm mb-6">
-          またはクリックしてファイルを選択
-        </p>
-
-        <div className="flex items-center gap-2 text-xs text-[#86868b]">
-          <FileText className="w-4 h-4" />
-          <span>.html / .htm ファイル対応</span>
-        </div>
-
-        {error && (
-          <p className="mt-4 text-[#ff3b30] text-sm">{error}</p>
-        )}
+        <button
+          onClick={() => {
+            const blank =
+              '<!DOCTYPE html><html><head><meta charset="utf-8"><title>New Slide</title></head><body>' +
+              '<div class="slide" style="position:relative;width:1280px;height:720px;background:white;overflow:hidden;"></div>' +
+              '</body></html>';
+            loadHTML(blank, 'new-slide.html');
+            router.push('/editor');
+          }}
+          className="w-48 border-2 border-dashed rounded-[28px] p-8 flex flex-col items-center justify-center cursor-pointer transition-all duration-200 border-[#c7c7cc] bg-white hover:border-[#007AFF] hover:bg-[rgba(0,122,255,0.04)]"
+          style={{ boxShadow: '0 18px 50px rgba(15,23,42,0.08)' }}
+        >
+          <div className="w-16 h-16 rounded-[20px] flex items-center justify-center mb-4 bg-[rgba(0,122,255,0.06)]">
+            <Plus className="w-8 h-8 text-[#007AFF]" />
+          </div>
+          <h2 className="text-sm font-semibold text-[#1d1d1f] mb-1">新規作成</h2>
+          <p className="text-[#86868b] text-xs text-center">白紙スライドから開始</p>
+        </button>
       </div>
 
       <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-2xl w-full">

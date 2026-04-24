@@ -1,6 +1,10 @@
 node_modules/
 .next/
+.env
 .env.local
 .env*.local
 *.tsbuildinfo
 next-env.d.ts
+generated/
+screenshot-home.png
+take-screenshots.mjs
