@@ -1,12 +1,13 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useEditorStore } from '@/store/editor-store';
 import Toolbar from '@/components/editor/Toolbar';
 import SlideNavigator from '@/components/editor/SlideNavigator';
 import Canvas from '@/components/editor/Canvas';
 import PropertyPanel from '@/components/editor/PropertyPanel';
+import PresentationMode from '@/components/editor/PresentationMode';
 import { sendToIframe } from '@/lib/iframe-bridge';
 
 // 自動保存のデバウンス間隔（ミリ秒）
@@ -25,6 +26,9 @@ export default function EditorPage() {
   const lastSavedAt = useEditorStore((s) => s.lastSavedAt);
   const saveToCloud = useEditorStore((s) => s.saveToCloud);
   const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Presentation mode state
+  const [showPresentation, setShowPresentation] = useState(false);
 
   // 自動保存: slides が変化したとき、projectId がある場合のみ30秒後に保存
   useEffect(() => {
@@ -60,6 +64,13 @@ export default function EditorPage() {
       const target = e.target as HTMLElement | null;
       const tag = target?.tagName?.toLowerCase();
       const isTyping = tag === 'input' || tag === 'textarea' || target?.isContentEditable;
+
+      // F5: start presentation mode
+      if (e.key === 'F5') {
+        e.preventDefault();
+        setShowPresentation(true);
+        return;
+      }
 
       if (isCtrl && (e.shiftKey && e.key === 'Z' || e.key === 'y')) {
         e.preventDefault();
@@ -113,6 +124,7 @@ export default function EditorPage() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [undo, redo, clipboard]);
 
   if (slides.length === 0) return null;
@@ -122,7 +134,7 @@ export default function EditorPage() {
       className="h-screen flex flex-col overflow-hidden"
       style={{ background: 'radial-gradient(circle at top left, rgba(0,122,255,0.08), transparent 26%), linear-gradient(180deg, #f7f7fa 0%, #f0f0f5 100%)' }}
     >
-      <Toolbar />
+      <Toolbar onPresent={() => setShowPresentation(true)} />
       <div className="flex-1 flex overflow-hidden min-h-0 gap-2 px-2 pb-2">
         <SlideNavigator />
         <Canvas />
@@ -153,9 +165,17 @@ export default function EditorPage() {
           </span>
         )}
         <span className="text-xs text-[#86868b] ml-auto">
-          Ctrl+Z/Y: 戻る/やり直し | Ctrl+C/X/V: コピー/カット/ペースト | Delete: 削除 | Ctrl+D: 複製 | Ctrl+G: グループ化
+          Ctrl+Z/Y: 戻る/やり直し | Ctrl+C/X/V: コピー/カット/ペースト | Delete: 削除 | Ctrl+D: 複製 | Ctrl+G: グループ化 | F5: プレゼン
         </span>
       </footer>
+
+      {/* Presentation Mode overlay */}
+      {showPresentation && (
+        <PresentationMode
+          onClose={() => setShowPresentation(false)}
+          startIndex={currentSlideIndex}
+        />
+      )}
     </div>
   );
 }

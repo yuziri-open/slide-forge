@@ -121,6 +121,40 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     });
   },
 
+  reorderSlides: (fromIndex: number, toIndex: number) => {
+    const { slides, currentSlideIndex, history, historyIndex } = get();
+    if (fromIndex === toIndex) return;
+    if (fromIndex < 0 || fromIndex >= slides.length) return;
+    if (toIndex < 0 || toIndex >= slides.length) return;
+
+    // Move the slide by removing from its position and inserting at the target
+    const newSlides = [...slides];
+    const [moved] = newSlides.splice(fromIndex, 1);
+    newSlides.splice(toIndex, 0, moved);
+
+    // If the active slide was moved, follow it to its new position
+    let newCurrentIndex = currentSlideIndex;
+    if (currentSlideIndex === fromIndex) {
+      newCurrentIndex = toIndex;
+    } else if (fromIndex < currentSlideIndex && toIndex >= currentSlideIndex) {
+      // Slide moved forward past active: active shifts left by one
+      newCurrentIndex = currentSlideIndex - 1;
+    } else if (fromIndex > currentSlideIndex && toIndex <= currentSlideIndex) {
+      // Slide moved backward past active: active shifts right by one
+      newCurrentIndex = currentSlideIndex + 1;
+    }
+
+    const newHistoryEntry = newSlides.map(s => s.html);
+    const newHistory = history.slice(0, historyIndex + 1).concat([newHistoryEntry]);
+    const trimmed = newHistory.slice(-50);
+    set({
+      slides: newSlides,
+      currentSlideIndex: newCurrentIndex,
+      history: trimmed,
+      historyIndex: trimmed.length - 1,
+    });
+  },
+
   undo: () => {
     const { history, historyIndex } = get();
     if (historyIndex <= 0) return;

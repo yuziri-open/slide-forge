@@ -20,6 +20,7 @@ import {
   FilePlus,
   Image as ImageIcon,
   Loader2,
+  Play,
   Plus,
   Redo2,
   RotateCcw,
@@ -241,7 +242,11 @@ function AlignPickerModal({
   );
 }
 
-export default function Toolbar() {
+interface ToolbarProps {
+  onPresent?: () => void;
+}
+
+export default function Toolbar({ onPresent }: ToolbarProps) {
   const {
     fileName, undo, redo, zoom, setZoom, exportHTML,
     historyIndex, history, multiSelect, addSlide, loadHTML, slides, headHtml,
@@ -466,6 +471,21 @@ export default function Toolbar() {
           >
             <Download className="w-3.5 h-3.5" />
             {pptxProgress ? `${pptxProgress.current}/${pptxProgress.total}` : 'PPTX'}
+          </button>
+
+          {/* Present button — blue-purple gradient, stands out from export buttons */}
+          <button
+            onClick={onPresent}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs text-white font-medium transition-all hover:opacity-90 flex-shrink-0"
+            style={{
+              background: 'linear-gradient(135deg, #007AFF 0%, #5856D6 100%)',
+              border: '1px solid rgba(88,86,214,0.3)',
+              boxShadow: '0 8px 20px rgba(88,86,214,0.22)',
+            }}
+            title="プレゼンテーション開始 (F5)"
+          >
+            <Play className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Present</span>
           </button>
 
           {/* Save to Cloud: GAS_API_URL が設定されている場合のみ表示 */}

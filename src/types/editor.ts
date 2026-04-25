@@ -52,6 +52,7 @@ export interface EditorState {
   setClipboard: (htmls: string[] | null) => void;
   addSlide: (html?: string) => void;
   deleteSlide: (index: number) => void;
+  reorderSlides: (fromIndex: number, toIndex: number) => void;
 
   // Cloud Actions
   saveToCloud: () => Promise<void>;
