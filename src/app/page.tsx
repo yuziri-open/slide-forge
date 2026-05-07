@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Cloud, FileText, Loader2, Plus, Trash2, Upload, Zap } from 'lucide-react';
 import { useEditorStore } from '@/store/editor-store';
 import { listProjects, deleteProject, type ProjectSummary } from '@/lib/gas-api';
+import { markdownToSlideHTML } from '@/lib/markdown-import';
 
 // GAS_API_URL が設定されているか確認（クライアントサイド）
 const GAS_API_URL = process.env.NEXT_PUBLIC_GAS_SLIDE_API || '';
@@ -75,14 +76,18 @@ export default function HomePage() {
   }, []);
 
   const handleFile = useCallback((file: File) => {
-    if (!file.name.endsWith('.html') && !file.name.endsWith('.htm')) {
-      setError('HTMLファイルを選択してください');
+    const isHtml = file.name.endsWith('.html') || file.name.endsWith('.htm');
+    const isMd = file.name.endsWith('.md');
+
+    if (!isHtml && !isMd) {
+      setError('.html / .htm / .md ファイルを選択してください');
       return;
     }
 
     const reader = new FileReader();
     reader.onload = (e) => {
-      const html = e.target?.result as string;
+      const text = e.target?.result as string;
+      const html = isMd ? markdownToSlideHTML(text) : text;
       loadHTML(html, file.name);
       router.push('/editor');
     };
@@ -138,7 +143,7 @@ export default function HomePage() {
           <input
             id="file-input"
             type="file"
-            accept=".html,.htm"
+            accept=".html,.htm,.md"
             className="hidden"
             onChange={handleFileInput}
           />
@@ -152,7 +157,7 @@ export default function HomePage() {
           </div>
 
           <h2 className="text-lg font-semibold text-[#1d1d1f] mb-1">
-            HTMLファイルをドロップ
+            ファイルをドロップ
           </h2>
           <p className="text-[#86868b] text-sm mb-4">
             またはクリックしてファイルを選択
@@ -160,7 +165,7 @@ export default function HomePage() {
 
           <div className="flex items-center gap-2 text-xs text-[#86868b]">
             <FileText className="w-4 h-4" />
-            <span>.html / .htm ファイル対応</span>
+            <span>.html / .htm / .md ファイル対応</span>
           </div>
 
           {error && (

@@ -259,6 +259,7 @@ export default function Toolbar({ onPresent }: ToolbarProps) {
   const [showTextPicker, setShowTextPicker] = useState(false);
   const [showAlignPicker, setShowAlignPicker] = useState(false);
   const [pptxProgress, setPptxProgress] = useState<{ label: string; current: number; total: number } | null>(null);
+  const [pdfProgress, setPdfProgress] = useState<{ label: string; current: number; total: number } | null>(null);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saved' | 'error'>('idle');
   const imageInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
@@ -310,6 +311,21 @@ export default function Toolbar({ onPresent }: ToolbarProps) {
       alert('PPTXエクスポートに失敗しました。');
     } finally {
       setPptxProgress(null);
+    }
+  };
+
+  const handleExportPDF = async () => {
+    if (pdfProgress) return;
+    try {
+      const { exportToPDF } = await import('@/lib/pdf-export');
+      await exportToPDF(headHtml, slides, fileName || 'slides', (label, current, total) => {
+        setPdfProgress({ label, current, total });
+      });
+    } catch (e) {
+      console.error('PDF export failed:', e);
+      alert('PDFエクスポートに失敗しました。');
+    } finally {
+      setPdfProgress(null);
     }
   };
 
@@ -471,6 +487,16 @@ export default function Toolbar({ onPresent }: ToolbarProps) {
           >
             <Download className="w-3.5 h-3.5" />
             {pptxProgress ? `${pptxProgress.current}/${pptxProgress.total}` : 'PPTX'}
+          </button>
+
+          <button
+            onClick={handleExportPDF}
+            disabled={!!pdfProgress}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs text-white font-medium transition-all hover:opacity-90 flex-shrink-0 disabled:opacity-60"
+            style={{ background: '#FF3B30', border: '1px solid rgba(255,59,48,0.3)', boxShadow: '0 8px 20px rgba(255,59,48,0.2)' }}
+          >
+            <Download className="w-3.5 h-3.5" />
+            {pdfProgress ? `${pdfProgress.current}/${pdfProgress.total}` : 'PDF'}
           </button>
 
           {/* Present button — blue-purple gradient, stands out from export buttons */}

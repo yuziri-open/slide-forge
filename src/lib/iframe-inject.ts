@@ -1253,6 +1253,17 @@ export const IFRAME_INJECT_SCRIPT = `
       updateMultiBBoxOverlay();
     }
 
+    // Select element by xpath (from LayerPanel)
+    if (type === 'select-element') {
+      var selEl = getElementByXPath(xpath);
+      if (selEl) {
+        selectedEl = selEl;
+        multiSelectedEls = [];
+        updateOverlay(selEl);
+        notifyParentSelected();
+      }
+    }
+
     if (type === 'update-css-var') {
       document.documentElement.style.setProperty(data.name, data.value);
       serializeDOM();

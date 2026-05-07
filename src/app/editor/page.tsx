@@ -8,6 +8,7 @@ import SlideNavigator from '@/components/editor/SlideNavigator';
 import Canvas from '@/components/editor/Canvas';
 import PropertyPanel from '@/components/editor/PropertyPanel';
 import PresentationMode from '@/components/editor/PresentationMode';
+import LayerPanel from '@/components/editor/LayerPanel';
 import { sendToIframe } from '@/lib/iframe-bridge';
 
 // 自動保存のデバウンス間隔（ミリ秒）
@@ -136,7 +137,10 @@ export default function EditorPage() {
     >
       <Toolbar onPresent={() => setShowPresentation(true)} />
       <div className="flex-1 flex overflow-hidden min-h-0 gap-2 px-2 pb-2">
-        <SlideNavigator />
+        <div className="flex flex-col gap-2" style={{ width: 'auto' }}>
+          <SlideNavigator />
+          <LayerPanel />
+        </div>
         <Canvas />
         <PropertyPanel />
       </div>

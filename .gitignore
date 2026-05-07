@@ -8,3 +8,4 @@ next-env.d.ts
 generated/
 screenshot-home.png
 take-screenshots.mjs
+.claude/
