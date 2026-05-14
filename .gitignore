@@ -9,3 +9,5 @@ generated/
 screenshot-home.png
 take-screenshots.mjs
 .claude/
+
+.vercel

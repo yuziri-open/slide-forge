@@ -137,7 +137,7 @@ export default function EditorPage() {
     >
       <Toolbar onPresent={() => setShowPresentation(true)} />
       <div className="flex-1 flex overflow-hidden min-h-0 gap-2 px-2 pb-2">
-        <div className="flex flex-col gap-2" style={{ width: 'auto' }}>
+        <div className="flex flex-col gap-2 min-h-0 overflow-hidden" style={{ width: 'auto' }}>
           <SlideNavigator />
           <LayerPanel />
         </div>

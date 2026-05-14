@@ -100,7 +100,7 @@ export default function SlideNavigator() {
   // ─── Render ──────────────────────────────────────────────────────
 
   return (
-    <div className="sf-panel w-48 flex flex-col overflow-hidden flex-shrink-0 m-2 mr-0">
+    <div className="sf-panel w-48 flex flex-col overflow-hidden flex-shrink-0 min-h-0 m-2 mr-0">
       {/* Header */}
       <div
         className="p-3 flex items-center justify-between flex-shrink-0"
@@ -172,6 +172,7 @@ export default function SlideNavigator() {
                     <div className="absolute inset-0 overflow-hidden bg-white">
                       <iframe
                         srcDoc={buildThumbnailSrcDoc(headHtml, slide.html)}
+                        loading="lazy"
                         style={{
                           width: 1280,
                           height: 720,

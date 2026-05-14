@@ -1109,6 +1109,26 @@ export const IFRAME_INJECT_SCRIPT = `
     }
   });
 
+  // ---- Fix sibling positions after flow element becomes absolute ----
+  function fixSiblingPositions(parentEl, movedEl) {
+    if (!parentEl) return;
+    var children = Array.from(parentEl.children);
+    children.forEach(function(child) {
+      if (child === movedEl) return;
+      if (child.getAttribute && child.getAttribute('data-sf-placeholder')) return;
+      if (child.id === '__sf_overlay__' || child.id === '__sf_multi_bbox__' || child.id === '__sf_snap_guides__' || child.id === '__sf_context_menu__') return;
+      var cs = window.getComputedStyle(child);
+      if (cs.position === 'absolute' || cs.position === 'fixed') return;
+      var rect = child.getBoundingClientRect();
+      var parent = child.offsetParent || document.documentElement;
+      var parentRect = parent.getBoundingClientRect();
+      child.style.position = 'absolute';
+      child.style.left = (rect.left - parentRect.left) + 'px';
+      child.style.top = (rect.top - parentRect.top) + 'px';
+      child.style.width = rect.width + 'px';
+    });
+  }
+
   // ---- Mouseup ----
   document.addEventListener('mouseup', function(e) {
     var wasDragging = isDragging || isResizing || isRotating;
@@ -1133,6 +1153,12 @@ export const IFRAME_INJECT_SCRIPT = `
         selectedEl.style.position = '';
         selectedEl.style.left = '';
         selectedEl.style.top = '';
+      } else {
+        // Element moved far from origin - fix siblings to prevent reflow
+        if (dragPlaceholder && dragPlaceholder.parentNode) {
+          fixSiblingPositions(dragPlaceholder.parentNode, selectedEl);
+          dragPlaceholder.parentNode.removeChild(dragPlaceholder);
+        }
       }
     }
 
